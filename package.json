@@ -18,6 +18,7 @@
   "homepage": "https://github.com/bogdan-ho/frontend-project-lvl3#readme",
   "devDependencies": {
     "eslint": "^8.22.0",
+    "eslint-config-airbnb": "^19.0.4",
     "jest": "^28.1.3"
   }
 }
