@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/bogdan-ho/frontend-project-lvl3#readme",
   "devDependencies": {
+    "@babel/core": "^7.19.3",
     "@webpack-cli/generators": "^2.5.0",
     "css-loader": "^6.7.1",
     "eslint": "^8.22.0",
