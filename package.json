@@ -1,15 +1,10 @@
 {
-  "name": "my-webpack-project",
-  "version": "1.0.0",
-  "description": "My webpack project",
+  "name": "@hexlet/code",
+  "version": "0.1.0",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --colors",
-    "build": "webpack --mode=production --node-env=production",
-    "build:dev": "webpack --mode=development",
-    "build:prod": "webpack --mode=production --node-env=production",
-    "watch": "webpack --watch",
-    "serve": "webpack serve"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest --colors"
   },
   "repository": {
     "type": "git",
