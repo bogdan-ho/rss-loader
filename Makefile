@@ -6,7 +6,7 @@ install:
 
 build:
 	rm -rf dist
-	NODE_ENV=development npx webpack
+	NODE_ENV=production npx webpack
 
 test:
 	npm test
