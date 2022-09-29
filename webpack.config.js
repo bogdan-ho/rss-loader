@@ -7,7 +7,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     filename: 'index_bundle.js',
-    },
+  },
   devServer: {
     open: true,
     host: 'localhost',
@@ -24,9 +24,10 @@ module.exports = {
           },
         },
       },
-      { 
-        test: /\.css$/, 
-        use: ['style-loader', 'css-loader', 'postcss-loader'] },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
+      },
       {
         test: /\.scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader', 'postcss-loader'],
