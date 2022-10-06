@@ -1,6 +1,7 @@
-import onChange from 'on-change';
+/* eslint-disable no-console */
 import { string } from 'yup';
 import axios from 'axios';
+import { generateWatchedState } from './view';
 
 export default () => {
   // Model
@@ -32,7 +33,38 @@ export default () => {
     items: [],
   };
 
+  // View - взаимодействие с DOM на основе state
+
+  const watchedState = generateWatchedState(state);
+
+  // console.log(`state is ${JSON.stringify(state)}`);
   // Controller - обработчики изменяющие state
+
+  // const validate = (stateForCheck, url) => {
+  //   const schema = string()
+  //     .url('Ссылка должна быть валидным URL')
+  //     .notOneOf(stateForCheck.feeds.map((feed) => feed.rssUrl), 'RSS уже существует');
+  //     // где то в этом месте теперь нужно делать http запрос на этот адрес
+  //     // и если пришли данные то валидация пройдена и добавляем данные в state
+
+  //   schema.validate(url)
+  //     .then(() => {
+  //       stateForCheck.feeds.push({
+  //         rssUrl: url,
+  //         urlValid: true,
+  //         validationErrors: [],
+  //       });
+  //       console.log(`then state is ${JSON.stringify(stateForCheck)}`);
+  //     })
+  //     .catch((err) => {
+  //       stateForCheck.feeds.push({
+  //         rssUrl: url,
+  //         urlValid: false,
+  //         validationErrors: err.errors,
+  //       });
+  //       console.log(`catch state is ${JSON.stringify(stateForCheck)}`);
+  //     });
+  // };
 
   const validate = (stateForCheck, url) => {
     const schema = string()
@@ -41,28 +73,10 @@ export default () => {
       // где то в этом месте теперь нужно делать http запрос на этот адрес
       // и если пришли данные то валидация пройдена и добавляем данные в state
 
-    schema.validate(url)
-      .then(() => {
-        stateForCheck.feeds.push({
-          rssUrl: url,
-          urlValid: true,
-          validationErrors: [],
-        });
-        console.log(`then state is ${JSON.stringify(stateForCheck)}`);
-      })
-      .catch((err) => {
-        stateForCheck.feeds.push({
-          rssUrl: url,
-          urlValid: false,
-          validationErrors: err.errors,
-        });
-        console.log(`catch state is ${JSON.stringify(stateForCheck)}`);
-      });
+    return schema.validate(url);
   };
 
   const rssForm = document.querySelector('.rss-form');
-  const urlInput = document.querySelector('#url-input');
-  const feedbackEl = document.querySelector('.feedback');
 
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -70,21 +84,22 @@ export default () => {
     const rssUrl = formData.get('url');
     console.log(`rssUrl is ${rssUrl}`);
 
-    validate(state, rssUrl);
+    validate(watchedState, rssUrl)
+      .then(() => {
+        watchedState.feeds.push({
+          rssUrl,
+          urlValid: true,
+          validationErrors: [],
+        });
+        console.log(`then state is ${JSON.stringify(watchedState)}`);
+      })
+      .catch((err) => {
+        watchedState.feeds.push({
+          rssUrl,
+          urlValid: false,
+          validationErrors: err.errors,
+        });
+        console.log(`catch state is ${JSON.stringify(watchedState)}`);
+      });
   });
-
-  // View - взаимодействие с DOM на основе state
-  const watchedState = onChange(state, (path, value, previousValue) => {
-    alert('value changed!');
-
-    console.log(`path is ${path}`);
-
-    console.log(`value is ${value}`);
-
-    console.log(`previousValue is ${previousValue}`);
-
-  });
-
-  console.log(`state is ${JSON.stringify(state)}`);
-
 };
