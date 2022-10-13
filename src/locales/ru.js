@@ -3,7 +3,7 @@ export default {
     validation: {
       success: 'RSS успешно загружен',
       errors: {
-        rssExistAlready: 'RSS уже существует',
+        rssAlreadyExist: 'RSS уже существует',
         shouldNotBeEmpty: 'Не должно быть пустым',
         rssShouldBeValidUrl: 'Ссылка должна быть валидным URL',
       },
