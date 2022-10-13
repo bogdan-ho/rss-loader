@@ -1,16 +1,16 @@
 export default {
   translation: {
-    validation: {
-      success: 'RSS успешно загружен',
-      errors: {
-        rssAlreadyExist: 'RSS уже существует',
-        shouldNotBeEmpty: 'Не должно быть пустым',
-        rssShouldBeValidUrl: 'Ссылка должна быть валидным URL',
-      },
+    errors: {
+      rssAlreadyExist: 'RSS уже существует',
+      shouldNotBeEmpty: 'Не должно быть пустым',
+      rssShouldBeValidUrl: 'Ссылка должна быть валидным URL',
+      rssNotValid: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети',
     },
-    loading: {},
-    content: {},
+    loading: 'Идет загрузка',
+    success: 'RSS успешно загружен',
+    posts: 'Посты',
+    feeds: 'Фиды',
+    inspect: 'Просмотр',
   },
 };
-
-// Ресурс не содержит валидный RSS, Просмотр, Ошибка сети.
