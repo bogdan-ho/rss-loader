@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import generateWatchedState from './view';
 import languages from './locales/index';
+import axios from 'axios';
 
 const app = () => {
   // Model
@@ -17,10 +18,10 @@ const app = () => {
   }).then(() => {
     yup.setLocale({
       string: {
-        url: i18n.t('errors.rssShouldBeValidUrl'),
+        url: 'errors.rssShouldBeValidUrl',
       },
       mixed: {
-        notOneOf: i18n.t('errors.rssAlreadyExist'),
+        notOneOf: 'errors.rssAlreadyExist',
       },
     });
   });
@@ -41,11 +42,11 @@ const app = () => {
     rssForm: document.querySelector('.rss-form'),
     urlInput: document.querySelector('#url-input'),
     feedbackEl: document.querySelector('.feedback'),
-    formButton: document.querySelector('.rss-form > .btn'),
+    formButton: document.querySelector('.rss-form .btn'),
   };
 
   // View - взаимодействие с DOM на основе state
-  const watchedState = generateWatchedState(state);
+  const watchedState = generateWatchedState(state, elements, i18n);
 
   // Controller - обработчики изменяющие state
   const validate = (feeds, url) => {
@@ -70,12 +71,21 @@ const app = () => {
 
     validate(watchedState.links, rssUrl)
       .then((validUrl) => {
+        watchedState.form.process = 'success';
+
         console.log(`validUrl is ${validUrl}`);
-        watchedState.links.push(validUrl);
         console.log(`then state is ${JSON.stringify(watchedState)}`);
+
+        watchedState.links.push(validUrl);
       })
       .catch((err) => {
-        watchedState.form.errors.push(err);
+        watchedState.form.process = 'fail';
+
+        console.log(`err.message is ${err.message}`);
+        console.log(`err is ${err}`);
+
+        watchedState.form.errors = err.message;
+
         console.log(`catch state is ${JSON.stringify(watchedState)}`);
       });
   });
