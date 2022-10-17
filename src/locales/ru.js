@@ -7,7 +7,6 @@ export default {
       rssNotValid: 'Ресурс не содержит валидный RSS',
       networkError: 'Ошибка сети',
     },
-    loading: 'Идет загрузка',
     success: 'RSS успешно загружен',
     posts: 'Посты',
     feeds: 'Фиды',
