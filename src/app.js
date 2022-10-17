@@ -36,12 +36,18 @@ const app = () => {
     readedPosts: [],
     currentPost: {},
   };
-  // View - взаимодействие с DOM на основе state
 
+  const elements = {
+    rssForm: document.querySelector('.rss-form'),
+    urlInput: document.querySelector('#url-input'),
+    feedbackEl: document.querySelector('.feedback'),
+    formButton: document.querySelector('.rss-form > .btn'),
+  };
+
+  // View - взаимодействие с DOM на основе state
   const watchedState = generateWatchedState(state);
 
   // Controller - обработчики изменяющие state
-
   const validate = (feeds, url) => {
     const schema = yup.string().required()
       .url()
@@ -52,10 +58,12 @@ const app = () => {
     return schema.validate(url);
   };
 
-  const rssForm = document.querySelector('.rss-form');
+  const { rssForm } = elements;
 
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    watchedState.form.process = 'loading';
+
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
     console.log(`rssUrl is ${rssUrl}`);
@@ -67,11 +75,7 @@ const app = () => {
         console.log(`then state is ${JSON.stringify(watchedState)}`);
       })
       .catch((err) => {
-        watchedState.links.push({
-          rssUrl,
-          urlValid: false,
-          validationErrors: err.errors,
-        });
+        watchedState.form.errors.push(err);
         console.log(`catch state is ${JSON.stringify(watchedState)}`);
       });
   });
