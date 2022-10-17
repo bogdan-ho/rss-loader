@@ -1,77 +1,53 @@
 /* eslint-disable no-console */
-import { string } from 'yup';
-import axios from 'axios';
-import { generateWatchedState } from './view';
+import * as yup from 'yup';
+import i18next from 'i18next';
+import generateWatchedState from './view';
+import languages from './locales/index';
 
-export default () => {
+const app = () => {
   // Model
 
-  // const state = {
-  //   feeds: [
-  //     {
-  //       RSSUrl: new URL('https://ru.hexlet.io/lessons.rss'),
-  //       title: 'Новые уроки на Хекслете',
-  //       description: 'Практические уроки по программированию',
-  //       urlValid: true,
-  //       errors: [],
-  //     },
-  //   ],
-  //   items: [
-  //     {
-  //       RSSurl: new URL('https://ru.hexlet.io/lessons.rss'),
-  //       itemUrl: new URL('https://ru.hexlet.io/courses/graphs/lessons/network/theory_unit'),
-  //       title: 'Поточная сеть / Теория графов',
-  //       description: 'Цель: Объединяем графы и практические задачи',
-  //       guid: '2982',
-  //       pubDate: new Date('Fri, 07 Oct 2022 16:42:17 +0500'),
-  //     },
-  //   ],
-  // };
+  // создание экземпляра i18next
+  const i18n = i18next.createInstance();
+  i18n.init({
+    lng: 'ru',
+    debug: true,
+    resources:
+      languages,
+  }).then(() => {
+    yup.setLocale({
+      string: {
+        url: i18n.t('errors.rssShouldBeValidUrl'),
+      },
+      mixed: {
+        notOneOf: i18n.t('errors.rssAlreadyExist'),
+      },
+    });
+  });
 
   const state = {
+    form: {
+      process: '',
+      errors: [],
+    },
     feeds: [],
     items: [],
+    links: [],
+    readedPosts: [],
+    currentPost: {},
   };
-
   // View - взаимодействие с DOM на основе state
 
   const watchedState = generateWatchedState(state);
 
-  // console.log(`state is ${JSON.stringify(state)}`);
   // Controller - обработчики изменяющие state
 
-  // const validate = (stateForCheck, url) => {
-  //   const schema = string()
-  //     .url('Ссылка должна быть валидным URL')
-  //     .notOneOf(stateForCheck.feeds.map((feed) => feed.rssUrl), 'RSS уже существует');
-  //     // где то в этом месте теперь нужно делать http запрос на этот адрес
-  //     // и если пришли данные то валидация пройдена и добавляем данные в state
-
-  //   schema.validate(url)
-  //     .then(() => {
-  //       stateForCheck.feeds.push({
-  //         rssUrl: url,
-  //         urlValid: true,
-  //         validationErrors: [],
-  //       });
-  //       console.log(`then state is ${JSON.stringify(stateForCheck)}`);
-  //     })
-  //     .catch((err) => {
-  //       stateForCheck.feeds.push({
-  //         rssUrl: url,
-  //         urlValid: false,
-  //         validationErrors: err.errors,
-  //       });
-  //       console.log(`catch state is ${JSON.stringify(stateForCheck)}`);
-  //     });
-  // };
-
-  const validate = (stateForCheck, url) => {
-    const schema = string()
-      .url('Ссылка должна быть валидным URL')
-      .notOneOf(stateForCheck.feeds.map((feed) => feed.rssUrl), 'RSS уже существует');
-      // где то в этом месте теперь нужно делать http запрос на этот адрес
-      // и если пришли данные то валидация пройдена и добавляем данные в state
+  const validate = (feeds, url) => {
+    const schema = yup.string().required()
+      .url()
+      .notOneOf(state.links);
+    console.log(`state.links is ${JSON.stringify(state.links)}`);
+    console.log(`feeds is ${JSON.stringify(feeds)}`);
 
     return schema.validate(url);
   };
@@ -84,17 +60,14 @@ export default () => {
     const rssUrl = formData.get('url');
     console.log(`rssUrl is ${rssUrl}`);
 
-    validate(watchedState, rssUrl)
-      .then(() => {
-        watchedState.feeds.push({
-          rssUrl,
-          urlValid: true,
-          validationErrors: [],
-        });
+    validate(watchedState.links, rssUrl)
+      .then((validUrl) => {
+        console.log(`validUrl is ${validUrl}`);
+        watchedState.links.push(validUrl);
         console.log(`then state is ${JSON.stringify(watchedState)}`);
       })
       .catch((err) => {
-        watchedState.feeds.push({
+        watchedState.links.push({
           rssUrl,
           urlValid: false,
           validationErrors: err.errors,
@@ -103,3 +76,5 @@ export default () => {
       });
   });
 };
+
+export default app;
