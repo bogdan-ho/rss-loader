@@ -1,8 +1,23 @@
 /* eslint-disable no-console */
 import onChange from 'on-change';
 
-const renderValidationSuccess = (elements) => {
-  const { urlInput, feedbackEl } = elements;
+const renderErrors = (value, elements, i18n) => {
+  const { feedbackEl } = elements;
+  switch (value) {
+    case ('errors.rssShouldBeValidUrl'):
+      feedbackEl.textContent = i18n.t(value);
+      break;
+    case ('errors.rssAlreadyExist'):
+      feedbackEl.textContent = i18n.t(value);
+      break;
+    default:
+      break;
+  }
+};
+
+const renderSuccessStatus = (value, elements, i18n) => {
+  const { urlInput, feedbackEl, formButton } = elements;
+  formButton.disabled = false;
 
   urlInput.classList.remove('is-invalid');
   urlInput.value = '';
@@ -10,67 +25,59 @@ const renderValidationSuccess = (elements) => {
 
   feedbackEl.classList.remove('text-danger');
   feedbackEl.classList.add('text-success');
-  feedbackEl.textContent = 'RSS успешно загружен';
+  feedbackEl.textContent = i18n.t(value);
 };
 
-const renderValidationFail = (validationErrors, elements) => {
-  const { urlInput, feedbackEl } = elements;
-
+const renderFailStatus = (elements) => {
+  const { urlInput, feedbackEl, formButton } = elements;
+  formButton.disabled = false;
   urlInput.classList.add('is-invalid');
 
   feedbackEl.classList.remove('text-success');
   feedbackEl.classList.add('text-danger');
-  feedbackEl.textContent = `${validationErrors}`;
 };
 
 const renderFormLoading = (elements) => {
   const { rssForm, formButton } = elements;
-  rssForm.reset();
+
   rssForm.focus();
+  console.log(`formButton.disabled is ${formButton.disabled}`);
   formButton.disabled = true;
 };
 
-const renderProcessStatus = (value, elements) => {
+const renderProcessStatus = (value, elements, i18n) => {
   switch (value) {
     case ('loading'):
       renderFormLoading(elements);
       break;
     case ('success'):
+      renderSuccessStatus(value, elements, i18n);
       break;
     case ('fail'):
+      renderFailStatus(elements);
       break;
     default:
       throw new Error(`Wrong value: ${value}`);
   }
 };
 
-export default (state, elements) => onChange(state, (path, value) => {
+export default (state, elements, i18n) => onChange(state, (path, value) => {
   console.log(`path is ${path}`);
-
   console.log(`value is ${JSON.stringify(value)}`);
-  console.log(`value.at(-1) is ${JSON.stringify(value.at(-1))}`);
 
   switch (path) {
     case ('form.process'):
-      renderProcessStatus(value, elements);
+      renderProcessStatus(value, elements, i18n);
+      break;
+    case ('form.errors'):
+      console.log(`case ('form.errors') is ${path}`);
+      renderErrors(value, elements, i18n);
+      break;
+    case ('links'):
+      console.log(`case ('links') is ${path}`);
+      // renderErrors(value, elements, i18n);
       break;
     default:
       throw new Error(path);
   }
-
-  // const currentFeed = value.at(-1);
-  // const { urlValid, validationErrors } = currentFeed;
-
-  // console.log(`urlValid is ${urlValid}`);
-  // console.log(`validationErrors is ${JSON.stringify(validationErrors)}`);
-
-  // console.log(`previousValue is ${JSON.stringify(previousValue)}`);
-
-  // if (urlValid) {
-  //   console.log(`urlValid is ${urlValid} let's change`);
-  //   renderValidationSuccess(elements);
-  // } else {
-  //   console.log(`urlValid is ${urlValid} let's change`);
-  //   renderValidationFail(validationErrors, elements);
-  // }
 });
