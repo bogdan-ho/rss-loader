@@ -4,7 +4,7 @@ import onChange from 'on-change';
 const urlInput = document.querySelector('#url-input');
 const feedbackEl = document.querySelector('.feedback');
 
-export const renderValidationSuccess = () => {
+const renderValidationSuccess = () => {
   urlInput.classList.remove('is-invalid');
   urlInput.value = '';
   urlInput.focus();
@@ -14,7 +14,7 @@ export const renderValidationSuccess = () => {
   feedbackEl.textContent = 'RSS успешно загружен';
 };
 
-export const renderValidationFail = (validationErrors) => {
+const renderValidationFail = (validationErrors) => {
   urlInput.classList.add('is-invalid');
 
   feedbackEl.classList.remove('text-success');
@@ -22,9 +22,7 @@ export const renderValidationFail = (validationErrors) => {
   feedbackEl.textContent = `${validationErrors}`;
 };
 
-export const generateWatchedState = (state) => onChange(state, (path, value, previousValue) => {
-  alert('value changed!');
-
+export default (state) => onChange(state, (path, value, previousValue) => {
   console.log(`path is ${path}`);
 
   console.log(`value is ${JSON.stringify(value)}`);
