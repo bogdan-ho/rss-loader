@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const getFeed = (domDoc) => {
   const title = domDoc.querySelector('channel > title').textContent;
   const description = domDoc.querySelector('channel > description').textContent;
@@ -12,8 +14,10 @@ const getPosts = (domDoc) => {
     const title = item.querySelector('title').textContent;
     const description = item.querySelector('description').textContent;
     const link = item.querySelector('link').textContent;
-
-    posts.push({ title, description, link });
+    const postId = _.uniqueId();
+    posts.push({
+      title, description, link, postId,
+    });
   });
 
   return posts;
@@ -26,7 +30,7 @@ export default (content) => {
   const parserError = domDoc.querySelector('parsererror');
 
   if (parserError) {
-    throw new Error(parserError);
+    throw new Error('errors.rssNotValid');
   }
 
   const feed = getFeed(domDoc);
