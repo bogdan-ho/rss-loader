@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 import * as yup from 'yup';
 import i18next from 'i18next';
+import axios from 'axios';
+import _ from 'lodash';
 import generateWatchedState from './view';
 import languages from './locales/index';
-import axios from 'axios';
+import parser from './parser';
 
 const app = () => {
   // Model
@@ -32,7 +34,7 @@ const app = () => {
       errors: [],
     },
     feeds: [],
-    items: [],
+    posts: [],
     links: [],
     readedPosts: [],
     currentPost: {},
@@ -43,6 +45,8 @@ const app = () => {
     urlInput: document.querySelector('#url-input'),
     feedbackEl: document.querySelector('.feedback'),
     formButton: document.querySelector('.rss-form .btn'),
+    postsEl: document.querySelector('.posts'),
+    feedsEl: document.querySelector('.feeds'),
   };
 
   // View - взаимодействие с DOM на основе state
@@ -52,11 +56,22 @@ const app = () => {
   const validate = (feeds, url) => {
     const schema = yup.string().required()
       .url()
-      .notOneOf(state.links);
-    console.log(`state.links is ${JSON.stringify(state.links)}`);
-    console.log(`feeds is ${JSON.stringify(feeds)}`);
+      .notOneOf(feeds);
+    // console.log(`state.links is ${JSON.stringify(state.links)}`);
+    // console.log(`feeds is ${JSON.stringify(feeds)}`);
 
     return schema.validate(url);
+  };
+
+  const createProxiedUrl = (url) => {
+    const proxy = 'https://allorigins.hexlet.app/';
+    const proxyUrl = new URL('/get', proxy);
+    const searchParams = new URLSearchParams('');
+    searchParams.append('url', url);
+    searchParams.append('disableCache', true);
+    proxyUrl.search = searchParams;
+
+    return proxyUrl;
   };
 
   const { rssForm } = elements;
@@ -67,28 +82,100 @@ const app = () => {
 
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
-    console.log(`rssUrl is ${rssUrl}`);
+    // console.log(`rssUrl is ${rssUrl}`);
 
     validate(watchedState.links, rssUrl)
       .then((validUrl) => {
-        watchedState.form.process = 'success';
-
-        console.log(`validUrl is ${validUrl}`);
-        console.log(`then state is ${JSON.stringify(watchedState)}`);
+        // console.log(`validUrl is ${validUrl}`);
+        // console.log(`then state is ${JSON.stringify(watchedState)}`);
 
         watchedState.links.push(validUrl);
+        const proxiedUrl = createProxiedUrl(validUrl);
+        // console.log(`proxiedUrl is ${proxiedUrl}`);
+        axios.get(proxiedUrl)
+          .then((content) => {
+            watchedState.form.process = 'success';
+            watchedState.links.push(validUrl);
+
+            // console.log(`content is ${JSON.stringify(content)}`);
+            try {
+              const { feed, posts } = parser(content);
+              const feedId = _.uniqueId();
+              const formattedPosts = posts.map((post) => ({ ...post, validUrl, feedId }));
+
+              watchedState.feeds.push({ ...feed, validUrl, feedId });
+              const previousPosts = watchedState.posts;
+              watchedState.posts = previousPosts.concat(formattedPosts);
+            } catch (err) {
+              // handle parser errors
+              watchedState.form.process = 'fail';
+              watchedState.form.errors = err.message;
+            }
+            // console.log(`feed is ${feed}`);
+            // console.log(`state after adding feed is ${JSON.stringify(watchedState)}`);
+          }).catch((err) => {
+            // console.log(`catch after axios is  ${JSON.stringify(err)}`);
+            // console.log(`err.message is  ${JSON.stringify(err.message)}`);
+            // handle axios errors
+            watchedState.form.process = 'fail';
+            watchedState.form.errors = err.name;
+          });
       })
       .catch((err) => {
         watchedState.form.process = 'fail';
 
-        console.log(`err.message is ${err.message}`);
-        console.log(`err is ${err}`);
-
+        // handle validation errors
         watchedState.form.errors = err.message;
 
-        console.log(`catch state is ${JSON.stringify(watchedState)}`);
+        // console.log(`catch state is ${JSON.stringify(watchedState)}`);
       });
   });
+
+  const updatePosts = () => {
+    const { feeds, posts } = watchedState;
+
+    const promise = feeds.map((feed) => {
+      const { validUrl, feedId } = feed;
+      const proxiedUrl = createProxiedUrl(validUrl);
+
+      const getNewPosts = axios.get(proxiedUrl)
+        .then((content) => {
+          const oldPosts = posts.filter((post) => post.feedId === feedId);
+          console.log(`oldPosts is ${JSON.stringify(oldPosts)}`);
+
+          const currentPosts = parser(content).posts;
+          const formattedPosts = currentPosts.map((post) => ({ ...post, validUrl, feedId }));
+          console.log(`formattedPosts is ${JSON.stringify(formattedPosts)}`);
+
+          const oldPostsNoPostId = oldPosts.map((post) => {
+            const { title, description, link } = post;
+            return { title, description, link };
+          });
+          const currentPostsNoPostId = formattedPosts.map((post) => {
+            const { title, description, link } = post;
+            return { title, description, link };
+          });
+
+          const postsDiff = _.differenceWith(currentPostsNoPostId, oldPostsNoPostId, _.isEqual);
+          console.log(`postsDiff is ${JSON.stringify(postsDiff)}`);
+
+          if (postsDiff.length > 0) {
+            postsDiff.forEach((post) => {
+              const postId = _.uniqueId();
+              watchedState.posts.unshift({ ...post, feedId, postId });
+            });
+          }
+        });
+
+      return getNewPosts;
+    });
+
+    Promise.allSettled(promise)
+      .finally(() => {
+        setTimeout(updatePosts, 5000);
+      });
+  };
+  updatePosts();
 };
 
 export default app;
