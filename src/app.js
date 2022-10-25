@@ -47,6 +47,10 @@ const app = () => {
     formButton: document.querySelector('.rss-form .btn'),
     postsEl: document.querySelector('.posts'),
     feedsEl: document.querySelector('.feeds'),
+    modalEl: document.querySelector('#modal'),
+    modalTitle: document.querySelector('#modal .modal-title'),
+    modalBody: document.querySelector('#modal .modal-body'),
+    modalButton: document.querySelector('#modal .btn-primary'),
   };
 
   // View - взаимодействие с DOM на основе state
@@ -74,7 +78,7 @@ const app = () => {
     return proxyUrl;
   };
 
-  const { rssForm } = elements;
+  const { rssForm, postsEl } = elements;
 
   rssForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -131,6 +135,16 @@ const app = () => {
       });
   });
 
+  postsEl.addEventListener('click', (e) => {
+    const postLink = e.target.href ?? e.target.previousElementSibling.href;
+    const currentPost = watchedState.posts.find((post) => post.link === postLink);
+    // console.log(`currentPost is ${JSON.stringify(currentPost)}`);
+    if (!currentPost) return;
+
+    watchedState.currentPost = currentPost;
+    watchedState.readedPosts.push(currentPost);
+  });
+
   const updatePosts = () => {
     const { feeds, posts } = watchedState;
 
@@ -141,11 +155,11 @@ const app = () => {
       const getNewPosts = axios.get(proxiedUrl)
         .then((content) => {
           const oldPosts = posts.filter((post) => post.feedId === feedId);
-          console.log(`oldPosts is ${JSON.stringify(oldPosts)}`);
+          // console.log(`oldPosts is ${JSON.stringify(oldPosts)}`);
 
           const currentPosts = parser(content).posts;
           const formattedPosts = currentPosts.map((post) => ({ ...post, validUrl, feedId }));
-          console.log(`formattedPosts is ${JSON.stringify(formattedPosts)}`);
+          // console.log(`formattedPosts is ${JSON.stringify(formattedPosts)}`);
 
           const oldPostsNoPostId = oldPosts.map((post) => {
             const { title, description, link } = post;
@@ -157,7 +171,7 @@ const app = () => {
           });
 
           const postsDiff = _.differenceWith(currentPostsNoPostId, oldPostsNoPostId, _.isEqual);
-          console.log(`postsDiff is ${JSON.stringify(postsDiff)}`);
+          // console.log(`postsDiff is ${JSON.stringify(postsDiff)}`);
 
           if (postsDiff.length > 0) {
             postsDiff.forEach((post) => {
