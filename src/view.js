@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import onChange from 'on-change';
 
 const renderModal = (value, elements) => {
@@ -14,7 +13,6 @@ const renderModal = (value, elements) => {
 
   modalTitle.textContent = value.title;
   modalBody.textContent = value.description;
-  console.log(`value.link is ${value.link}`);
   modalButton.setAttribute('href', value.link);
 };
 
@@ -158,7 +156,6 @@ const renderFormLoading = (value, elements, i18n) => {
   const { rssForm, formButton, feedbackEl } = elements;
 
   rssForm.focus();
-  console.log(`formButton.disabled is ${formButton.disabled}`);
   formButton.disabled = true;
   feedbackEl.classList.add('text-muted');
   feedbackEl.textContent = i18n.t(value);
@@ -181,31 +178,20 @@ const renderProcessStatus = (value, elements, i18n) => {
 };
 
 export default (state, elements, i18n) => onChange(state, (path, value) => {
-  console.log(`path is ${path}`);
-  console.log(`value is ${JSON.stringify(value)}`);
-
   switch (path) {
     case ('form.process'):
       renderProcessStatus(value, elements, i18n);
       break;
     case ('form.errors'):
-      console.log(`case is ${path}`);
       renderErrors(value, elements, i18n);
       break;
-    case ('links'):
-      // console.log(`case ('links') is ${path}`);
-      // renderErrors(value, elements, i18n);
-      break;
     case ('feeds'):
-      console.log(`case is ${path}`);
       renderFeeds(value, elements, i18n);
       break;
     case ('posts'):
-      console.log(`case is ${path}`);
       renderPosts(value, elements, i18n);
       break;
     case ('currentPost'):
-      console.log(`case is ${path}`);
       renderModal(value, elements, i18n);
       break;
     default:
