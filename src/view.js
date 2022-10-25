@@ -1,6 +1,23 @@
 /* eslint-disable no-console */
 import onChange from 'on-change';
 
+const renderModal = (value, elements) => {
+  const { modalTitle, modalBody, modalButton } = elements;
+
+  const allTitles = elements.postsEl.querySelectorAll('a');
+  allTitles.forEach((title) => {
+    if (title.href === value.link) {
+      title.classList.remove('fw-bold');
+      title.classList.add('fw-normal');
+    }
+  });
+
+  modalTitle.textContent = value.title;
+  modalBody.textContent = value.description;
+  console.log(`value.link is ${value.link}`);
+  modalButton.setAttribute('href', value.link);
+};
+
 const renderErrors = (value, elements, i18n) => {
   const { feedbackEl } = elements;
   switch (value) {
@@ -89,14 +106,15 @@ const renderPosts = (value, elements, i18n) => {
     postLink.setAttribute('rel', 'noopener noreferrer');
     postLink.setAttribute('data-id', post.postId);
     postLink.textContent = post.title;
-    // console.log(`post.title is ${post.title}`);
-    // console.log(`post is ${JSON.stringify(post)}`);
 
     const postButton = document.createElement('button');
+    postButton.setAttribute('type', 'button');
     postButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    postButton.setAttribute('data-bs-toggle', 'modal');
-    postButton.setAttribute('data-bs-target', '#modal');
-    postButton.setAttribute('data-id', post.postId);
+
+    postButton.dataset.id = post.postId;
+    postButton.dataset.bsToggle = 'modal';
+    postButton.dataset.bsTarget = '#modal';
+
     postButton.textContent = i18n.t('inspect');
 
     listGroupItem.append(postLink);
@@ -186,7 +204,11 @@ export default (state, elements, i18n) => onChange(state, (path, value) => {
       console.log(`case is ${path}`);
       renderPosts(value, elements, i18n);
       break;
+    case ('currentPost'):
+      console.log(`case is ${path}`);
+      renderModal(value, elements, i18n);
+      break;
     default:
-      throw new Error(path);
+      break;
   }
 });
