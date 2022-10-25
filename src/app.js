@@ -139,14 +139,10 @@ const app = () => {
           const currentPosts = parser(content).posts;
           const formattedPosts = currentPosts.map((post) => ({ ...post, validUrl, feedId }));
 
-          const oldPostsNoPostId = oldPosts.map((post) => {
-            const { title, description, link } = post;
-            return { title, description, link };
-          });
-          const currentPostsNoPostId = formattedPosts.map((post) => {
-            const { title, description, link } = post;
-            return { title, description, link };
-          });
+          const oldPostsNoPostId = oldPosts
+            .map(({ title, description, link }) => ({ title, description, link }));
+          const currentPostsNoPostId = formattedPosts
+            .map(({ title, description, link }) => ({ title, description, link }));
 
           const postsDiff = _.differenceWith(currentPostsNoPostId, oldPostsNoPostId, _.isEqual);
           if (postsDiff.length > 0) {
