@@ -129,11 +129,13 @@ const renderPosts = (value, elements, i18n) => {
 };
 
 const renderSuccessStatus = (value, elements, i18n) => {
-  const { urlInput, feedbackEl, formButton } = elements;
+  const {
+    rssForm, urlInput, feedbackEl, formButton,
+  } = elements;
   formButton.disabled = false;
 
   urlInput.classList.remove('is-invalid');
-  urlInput.value = '';
+  rssForm.reset();
   urlInput.focus();
 
   feedbackEl.classList.remove('text-muted');

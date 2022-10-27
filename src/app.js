@@ -89,7 +89,6 @@ const app = () => {
         const proxiedUrl = createProxiedUrl(validUrl);
         axios.get(proxiedUrl)
           .then((content) => {
-            watchedState.form.process = 'success';
             watchedState.links.push(validUrl);
             try {
               const { feed, posts } = parser(content);
@@ -99,6 +98,7 @@ const app = () => {
               watchedState.feeds.push({ ...feed, validUrl, feedId });
               const previousPosts = watchedState.posts;
               watchedState.posts = previousPosts.concat(formattedPosts);
+              watchedState.form.process = 'success';
             } catch (err) {
               // handle parser errors
               watchedState.form.process = 'fail';
