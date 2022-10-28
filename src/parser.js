@@ -30,7 +30,9 @@ export default (content) => {
   const parserError = domDoc.querySelector('parsererror');
 
   if (parserError) {
-    throw new Error('errors.rssNotValid');
+    const err = new Error(parserError);
+    err.name = 'errors.rssNotValid';
+    throw err;
   }
 
   const feed = getFeed(domDoc);

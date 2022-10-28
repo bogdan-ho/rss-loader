@@ -102,7 +102,7 @@ const app = () => {
             } catch (err) {
               // handle parser errors
               watchedState.form.process = 'fail';
-              watchedState.form.errors = err.message;
+              watchedState.form.errors = err.name;
             }
           }).catch((err) => {
             // handle axios errors
