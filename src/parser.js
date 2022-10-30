@@ -30,8 +30,8 @@ export default (content) => {
   const parserError = domDoc.querySelector('parsererror');
 
   if (parserError) {
-    const err = new Error(parserError);
-    err.name = 'errors.rssNotValid';
+    const err = new Error('errors.rssNotValid');
+    err.name = 'ParserError';
     throw err;
   }
 
