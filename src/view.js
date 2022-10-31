@@ -28,7 +28,7 @@ const renderErrors = (value, elements, i18n) => {
     case ('errors.rssNotValid'):
       feedbackEl.textContent = i18n.t(value);
       break;
-    case ('AxiosError'):
+    case ('Network Error'):
       feedbackEl.textContent = i18n.t('errors.networkError');
       break;
     default:

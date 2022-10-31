@@ -29,7 +29,7 @@ const app = () => {
   const state = {
     form: {
       process: '',
-      errors: [],
+      errors: '',
     },
     feeds: [],
     posts: [],
@@ -87,33 +87,24 @@ const app = () => {
       .then((validUrl) => {
         watchedState.links.push(validUrl);
         const proxiedUrl = createProxiedUrl(validUrl);
-        axios.get(proxiedUrl)
-          .then((content) => {
-            watchedState.links.push(validUrl);
-            try {
-              const { feed, posts } = parser(content);
-              const feedId = _.uniqueId();
-              const formattedPosts = posts.map((post) => ({ ...post, validUrl, feedId }));
+        return proxiedUrl;
+      })
+      .then((proxiedUrl) => axios.get(proxiedUrl))
+      .then((content) => parser(content))
+      .then(({ feed, posts }) => {
+        const feedId = _.uniqueId();
+        const formattedPosts = posts.map((post) => ({ ...post, rssUrl, feedId }));
 
-              watchedState.feeds.push({ ...feed, validUrl, feedId });
-              const previousPosts = watchedState.posts;
-              watchedState.posts = previousPosts.concat(formattedPosts);
-              watchedState.form.process = 'success';
-            } catch (err) {
-              // handle parser errors
-              watchedState.form.process = 'fail';
-              watchedState.form.errors = err.name;
-            }
-          }).catch((err) => {
-            // handle axios errors
-            watchedState.form.process = 'fail';
-            watchedState.form.errors = err.name;
-          });
+        watchedState.feeds.push({ ...feed, rssUrl, feedId });
+        const previousPosts = watchedState.posts;
+        watchedState.posts = previousPosts.concat(formattedPosts);
+        watchedState.form.process = 'success';
       })
       .catch((err) => {
         // handle validation errors
-        watchedState.form.process = 'fail';
+        watchedState.form.errors = '';
         watchedState.form.errors = err.message;
+        watchedState.form.process = 'fail';
       });
   });
 
