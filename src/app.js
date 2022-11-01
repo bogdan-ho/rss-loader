@@ -34,7 +34,7 @@ const app = () => {
     feeds: [],
     posts: [],
     links: [],
-    readedPosts: [],
+    readedPosts: new Set(),
     currentPost: {},
   };
 
@@ -101,7 +101,7 @@ const app = () => {
         watchedState.form.process = 'success';
       })
       .catch((err) => {
-        // handle validation errors
+        // handle errors
         watchedState.form.errors = '';
         watchedState.form.errors = err.message;
         watchedState.form.process = 'fail';
@@ -113,8 +113,10 @@ const app = () => {
     const currentPost = watchedState.posts.find((post) => post.link === postLink);
     if (!currentPost) return;
 
+    const { postId } = currentPost;
+
     watchedState.currentPost = currentPost;
-    watchedState.readedPosts.push(currentPost);
+    watchedState.readedPosts.add(postId);
   });
 
   const updatePosts = () => {
