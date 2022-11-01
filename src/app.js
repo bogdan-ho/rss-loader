@@ -33,7 +33,6 @@ const app = () => {
     },
     feeds: [],
     posts: [],
-    links: [],
     readedPosts: new Set(),
     currentPost: {},
   };
@@ -56,9 +55,10 @@ const app = () => {
 
   // Controller - обработчики изменяющие state
   const validate = (feeds, url) => {
+    const rssUrls = feeds.map((feed) => feed.rssUrl);
     const schema = yup.string().required()
       .url()
-      .notOneOf(feeds);
+      .notOneOf(rssUrls);
 
     return schema.validate(url);
   };
@@ -83,9 +83,8 @@ const app = () => {
     const formData = new FormData(e.target);
     const rssUrl = formData.get('url');
 
-    validate(watchedState.links, rssUrl)
+    validate(watchedState.feeds, rssUrl)
       .then((validUrl) => {
-        watchedState.links.push(validUrl);
         const proxiedUrl = createProxiedUrl(validUrl);
         return proxiedUrl;
       })
